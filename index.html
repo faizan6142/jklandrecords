@@ -1,0 +1,903 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Land Records Portal</title>
+    <style>
+
+        /* ═══════════════════════════════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════════════════════════════ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           HEADER
+        ═══════════════════════════════════════════════════════════ */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .emblem {
+            width: 52px;
+            height: 52px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #1e3c72;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.2px;
+        }
+
+        .header-title p {
+            font-size: 0.78rem;
+            opacity: 0.88;
+            margin-top: 0.1rem;
+        }
+
+        /* ── Hamburger button (hidden on desktop) ── */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 8px;
+            padding: 0.5rem 0.6rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .nav-hamburger:hover { background: rgba(255,255,255,0.26); }
+
+        .nav-hamburger span {
+            display: block;
+            width: 21px;
+            height: 2px;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.28s ease;
+        }
+
+        .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ═══════════════════════════════════════════════════════════
+           NAV BAR  (horizontal on desktop, slide-down on mobile)
+        ═══════════════════════════════════════════════════════════ */
+        .nav-menu {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;     /* will be pushed down by header height via JS */
+            z-index: 190;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            gap: 0;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 0.9rem 1.25rem;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.22s;
+            display: block;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #2a5298;
+            border-bottom-color: #2a5298;
+            background: #f0f4ff;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           MAIN CONTENT AREA
+        ═══════════════════════════════════════════════════════════ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 1.25rem 2.5rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           COMPONENTS  (same design as before)
+        ═══════════════════════════════════════════════════════════ */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.9rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .card-header h2 { color: #1e3c72; font-size: 1.5rem; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.35rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 22px rgba(0,0,0,0.14); }
+        .stat-card.green  { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .stat-card.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-card.blue   { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+
+        .stat-icon  { font-size: 2.2rem; margin-bottom: 0.4rem; }
+        .stat-value { font-size: 1.9rem; font-weight: bold; margin-bottom: 0.2rem; line-height: 1; }
+        .stat-label { font-size: 0.85rem; opacity: 0.92; }
+
+        .form-group   { margin-bottom: 1.25rem; }
+        .form-label   { display: block; margin-bottom: 0.4rem; color: #333; font-weight: 500; }
+        .form-label.required::after { content: ' *'; color: #dc3545; }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 2px solid #e9ecef;
+            border-radius: 7px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus { outline: none; border-color: #2a5298; }
+
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+
+        .btn {
+            padding: 0.65rem 1.75rem;
+            border: none;
+            border-radius: 7px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(102,126,234,0.38); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success   { background: #28a745; color: white; }
+
+        .alert { padding: 0.9rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-info    { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .alert-danger  { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* record rows */
+        .jamabandi-record { background: #f8f9fa; padding: 1.35rem; border-radius: 8px; margin-bottom: 1rem; }
+
+        .record-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .record-row:last-child { border-bottom: none; }
+        .record-label { font-weight: 600; color: #495057; }
+        .record-value { color: #212529; }
+
+        /* status badges */
+        .status-badge    { display: inline-block; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.82rem; font-weight: 500; }
+        .status-pending  { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+
+        /* timeline */
+        .timeline { position: relative; padding-left: 2rem; }
+        .timeline-item { position: relative; padding-bottom: 1.75rem; }
+        .timeline-item::before { content:''; position:absolute; left:-2rem; top:0; width:12px; height:12px; border-radius:50%; background:#2a5298; }
+        .timeline-item::after  { content:''; position:absolute; left:-1.69rem; top:12px; width:2px; height:calc(100% - 12px); background:#dee2e6; }
+        .timeline-item:last-child::after { display:none; }
+        .timeline-content { background:#f8f9fa; padding:0.9rem; border-radius:6px; }
+        .timeline-date  { font-size:0.82rem; color:#6c757d; margin-bottom:0.4rem; }
+        .timeline-title { font-weight:600; color:#212529; margin-bottom:0.4rem; }
+        .timeline-text  { color:#495057; font-size:0.88rem; }
+
+        /* watermark */
+        .watermark { position:relative; overflow:hidden; }
+        .watermark::after { content:'FOR INFORMATION ONLY'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-45deg); font-size:3rem; color:rgba(0,0,0,0.05); font-weight:bold; white-space:nowrap; pointer-events:none; }
+
+        /* quick-action card */
+        .quick-action-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.75rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.25s, box-shadow 0.25s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .quick-action-card:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(0,0,0,0.16); }
+
+        /* FAQ details */
+        details summary { list-style: none; cursor: pointer; }
+        details summary::-webkit-details-marker { display: none; }
+        details[open] summary { margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e9ecef; }
+
+        /* ═══════════════════════════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════════════════════════ */
+        .footer {
+            background: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 1.75rem 1.25rem;
+            margin-top: auto;
+        }
+
+        .footer p { margin-bottom: 0.35rem; font-size: 0.9rem; }
+        .footer p:last-child { opacity: 0.8; font-size: 0.82rem; margin-bottom: 0; }
+
+        /* ═══════════════════════════════════════════════════════════
+           PRINT
+        ═══════════════════════════════════════════════════════════ */
+        @media print {
+            .header, .nav-menu, .footer, .btn { display: none; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RESPONSIVE  —  992px (tablets landscape)
+        ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 992px) {
+            .header-title h1 { font-size: 1.1rem; }
+            .nav-link { padding: 0.85rem 1rem; font-size: 0.85rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RESPONSIVE  —  768px (tablets / phones)
+        ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+
+            /* ── Header ── */
+            .header-content { padding: 0.75rem 1rem; }
+            .emblem { width: 42px; height: 42px; font-size: 1.3rem; }
+            .header-title h1 { font-size: 1rem; }
+            .header-title p  { display: none; }
+
+            /* ── Show hamburger ── */
+            .nav-hamburger { display: flex; }
+
+            /* ── Nav slides down / up ── */
+            .nav-menu {
+                position: relative;   /* back to normal flow on mobile */
+                overflow: hidden;
+                max-height: 0;        /* collapsed by default */
+                transition: max-height 0.35s ease, box-shadow 0.35s;
+                box-shadow: none;
+            }
+
+            .nav-menu.open {
+                max-height: 400px;    /* expand — larger than content */
+                box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            }
+
+            .nav-content {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0;
+                gap: 0;
+            }
+
+            .nav-link {
+                padding: 0.9rem 1.25rem;
+                border-bottom: 1px solid #e9ecef;
+                border-left: 3px solid transparent;
+                white-space: normal;
+            }
+
+            .nav-link:hover,
+            .nav-link.active {
+                border-bottom-color: #e9ecef;
+                border-left-color: #2a5298;
+            }
+
+            .nav-link:last-child { border-bottom: none; }
+
+            /* ── Content ── */
+            .container { padding: 1rem 0.85rem 2rem; }
+
+            .card { padding: 1.1rem; margin-bottom: 1.1rem; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+            .stat-value { font-size: 1.65rem; }
+
+            /* record row stacks vertically */
+            .record-row { grid-template-columns: 1fr; gap: 0.2rem; }
+
+            .form-row { grid-template-columns: 1fr; }
+
+            /* header text block alignment */
+            .header-content { align-items: center; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RESPONSIVE  —  480px (small phones)
+        ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
+            .stat-card  { padding: 1rem; }
+            .stat-value { font-size: 1.45rem; }
+            .stat-icon  { font-size: 1.7rem; }
+            .card { padding: 0.9rem; }
+            .header-title h1 { font-size: 0.92rem; }
+            .emblem { width: 36px; height: 36px; font-size: 1.1rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+    <header b-164lysxe6w="" class="header" id="siteHeader">
+        <div b-164lysxe6w="" class="header-content">
+            <a b-164lysxe6w="" href="/" class="logo-section">
+                <div b-164lysxe6w="" class="emblem">🏛️</div>
+                <div b-164lysxe6w="" class="header-title">
+                    <h1 b-164lysxe6w="">Land Records Portal</h1>
+                    <p b-164lysxe6w="">Government of Jammu &amp; Kashmir</p>
+                </div>
+            </a>
+
+            <!-- Hamburger — hidden on desktop, shown on mobile -->
+            <button b-164lysxe6w="" class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation" onclick="toggleNav()">
+                <span b-164lysxe6w=""></span>
+                <span b-164lysxe6w=""></span>
+                <span b-164lysxe6w=""></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ══ NAV BAR ═════════════════════════════════════════════════ -->
+    <nav b-164lysxe6w="" class="nav-menu" id="navMenu">
+        <div b-164lysxe6w="" class="nav-content">
+            <a b-164lysxe6w="" href="/" class="nav-link active">🏠 Dashboard</a>
+            <a b-164lysxe6w="" href="/Jamabandi/Search" class="nav-link">📋 View Jamabandi</a>
+            <a b-164lysxe6w="" href="/Grievance/Submit" class="nav-link">✍️ Submit Grievance</a>
+            <a b-164lysxe6w="" href="/Grievance/Track" class="nav-link">🔍 Track Grievance</a>
+            <a b-164lysxe6w="" href="/Account/Login" class="nav-link">🔐 Officer Login</a>
+        </div>
+    </nav>
+
+    <!-- ══ MAIN CONTENT ════════════════════════════════════════════ -->
+    <div b-164lysxe6w="" class="container">
+        
+<link href="/css/submit/submit.css" rel="stylesheet">
+<div class="card" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:0; overflow:hidden;">
+    <div style="padding:1.5rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.2);">
+        <h1 style="color:white; font-size:clamp(1.2rem,4vw,1.75rem); margin-bottom:0.4rem; line-height:1.3;">
+            🏛️ Welcome to J&amp;K Land Records &amp; Grievance Portal
+        </h1>
+        <p style="opacity:0.92; font-size:0.95rem; margin:0;">Revenue Department, Government of Jammu &amp; Kashmir</p>
+    </div>
+    <div style="padding:1.35rem 1.75rem;">
+        <p style="font-size:0.97rem; line-height:1.65; margin-bottom:1.1rem; opacity:0.95;">
+            This portal provides citizens with easy access to land records (Jamabandi) and a platform to submit and track
+            grievances related to land revenue matters. Our mission is to ensure transparent, efficient, and
+            citizen-friendly land revenue services across Jammu &amp; Kashmir.
+        </p>
+        <div class="welcome-features">
+            <div class="feature-tile">
+                <div style="font-size:1.5rem; margin-bottom:0.4rem;">🆓</div>
+                <strong>Free Service</strong>
+                <p>No charges for viewing records</p>
+            </div>
+            <div class="feature-tile">
+                <div style="font-size:1.5rem; margin-bottom:0.4rem;">⚡</div>
+                <strong>24/7 Access</strong>
+                <p>Available anytime, anywhere</p>
+            </div>
+            <div class="feature-tile">
+                <div style="font-size:1.5rem; margin-bottom:0.4rem;">🔒</div>
+                <strong>Secure &amp; Official</strong>
+                <p>Government verified data</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>🎯 Quick Actions</h2>
+        <p style="color:#6c757d; margin-top:0.4rem;">Select a service to get started</p>
+    </div>
+    <div class="quick-actions-grid">
+        <a href="/Jamabandi/Search" class="qa-card qa-purple">
+            <div class="qa-icon">📋</div>
+            <h3>View Jamabandi</h3>
+            <p>Search and view land records by district, tehsil, and village</p>
+        </a>
+        <a href="/Grievance/Submit" class="qa-card qa-pink">
+            <div class="qa-icon">✍️</div>
+            <h3>Submit Grievance</h3>
+            <p>Report issues related to land records or revenue matters</p>
+        </a>
+        <a href="/Grievance/Track" class="qa-card qa-blue">
+            <div class="qa-icon">🔍</div>
+            <h3>Track Grievance</h3>
+            <p>Check status of your submitted application</p>
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>📊 Portal Statistics</h2>
+        <p style="color:#6c757d; margin-top:0.4rem;">Real-time grievance resolution data</p>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon">📥</div>
+            <div class="stat-value">358</div>
+            <div class="stat-label">Total Grievances Received</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">14</div>
+            <div class="stat-label">Successfully Resolved</div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-value">328</div>
+            <div class="stat-label">Under Processing</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">
+                3.9%
+            </div>
+            <div class="stat-label">Resolution Rate</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>📖 How to Use This Portal</h2>
+    </div>
+    <div class="how-grid">
+        <div class="how-item">
+            <div class="how-num" style="background:#667eea;">1</div>
+            <div>
+                <h4 style="color:#1e3c72; margin-bottom:0.4rem;">View Land Records</h4>
+                <p style="color:#6c757d; font-size:0.9rem; line-height:1.55;">Select your district, tehsil, and village to access Jamabandi records. All records are digitized and free.</p>
+            </div>
+        </div>
+        <div class="how-item">
+            <div class="how-num" style="background:#f093fb;">2</div>
+            <div>
+                <h4 style="color:#1e3c72; margin-bottom:0.4rem;">Submit Grievance</h4>
+                <p style="color:#6c757d; font-size:0.9rem; line-height:1.55;">Found an error? Fill out the grievance form with details and supporting documents. You'll receive a tracking number.</p>
+            </div>
+        </div>
+        <div class="how-item">
+            <div class="how-num" style="background:#4facfe;">3</div>
+            <div>
+                <h4 style="color:#1e3c72; margin-bottom:0.4rem;">Track Status</h4>
+                <p style="color:#6c757d; font-size:0.9rem; line-height:1.55;">Use your tracking number to check grievance status. Receive updates at each stage: Submitted → Under Review → Resolved.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>📝 Types of Grievances You Can Submit</h2>
+    </div>
+    <div class="griev-grid">
+        <div class="griev-tile">
+            <div class="griev-icon">❌</div>
+            <h4>Incorrect Information</h4>
+            <p>Name spelling errors, wrong area measurements, incorrect ownership details</p>
+        </div>
+        <div class="griev-tile">
+            <div class="griev-icon">📄</div>
+            <h4>Missing Records</h4>
+            <p>Land records not updated, missing entries, incomplete documentation</p>
+        </div>
+        <div class="griev-tile">
+            <div class="griev-icon">🔄</div>
+            <h4>Mutation Issues</h4>
+            <p>Pending mutations, transfer delays, inheritance record updates</p>
+        </div>
+        <div class="griev-tile">
+            <div class="griev-icon">🏘️</div>
+            <h4>Boundary Disputes</h4>
+            <p>Land demarcation issues, conflicting records, survey problems</p>
+        </div>
+        <div class="griev-tile">
+            <div class="griev-icon">💰</div>
+            <h4>Revenue Matters</h4>
+            <p>Tax assessment disputes, payment discrepancies, receipt issues</p>
+        </div>
+        <div class="griev-tile">
+            <div class="griev-icon">⚙️</div>
+            <h4>Other Issues</h4>
+            <p>Technical problems, accessibility issues, general inquiries</p>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="background:#fff3cd; border-left:4px solid #ffc107;">
+    <div class="card-header" style="background:transparent; border-bottom:none; padding-bottom:0.5rem;">
+        <h2 style="color:#856404;">⚠️ Important Information</h2>
+    </div>
+    <ul style="color:#856404; line-height:2; padding-left:1.4rem; margin:0; font-size:0.92rem;">
+        <li><strong>Typical Resolution Time:</strong> Most grievances are resolved within <strong>15-30 working days</strong></li>
+        <li><strong>Required Documents:</strong> Keep Khasra number, survey number, or plot details ready when submitting</li>
+        <li><strong>Tracking Number:</strong> Save your tracking number immediately after submission</li>
+        <li><strong>Valid Mobile &amp; Email:</strong> Provide correct contact details to receive updates</li>
+        <li><strong>Office Visits:</strong> For complex cases, you may be asked to visit the Tehsil office</li>
+        <li><strong>Service Hours:</strong> Revenue offices operate 10:00 AM – 5:00 PM (Mon–Fri)</li>
+    </ul>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>❓ Frequently Asked Questions</h2>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <details class="faq-item">
+            <summary>Is there any fee to view land records?</summary>
+            <p>No, viewing Jamabandi records online is completely free. No registration or payment is required.</p>
+        </details>
+        <details class="faq-item">
+            <summary>How long does it take to resolve a grievance?</summary>
+            <p>Most grievances are resolved within 15–30 working days. Complex cases may take longer. You can track status using your tracking number.</p>
+        </details>
+        <details class="faq-item">
+            <summary>What documents do I need to submit a grievance?</summary>
+            <p>Typically: ID proof, land ownership documents (if available), and any supporting evidence. Maximum file size: 5 MB per document.</p>
+        </details>
+        <details class="faq-item">
+            <summary>Can I submit multiple grievances?</summary>
+            <p>Yes, you can submit multiple grievances. Each will receive a unique tracking number. Submit separate applications for different issues.</p>
+        </details>
+        <details class="faq-item">
+            <summary>What if I lost my tracking number?</summary>
+            <p>You can search using your registered mobile number or contact the Revenue Department helpline at <strong>0191-2345678</strong> with your name, mobile number, and approximate submission date.</p>
+        </details>
+        <details class="faq-item">
+            <summary>Are the land records legally valid?</summary>
+            <p>Yes, all records are official and maintained by the Revenue Department. For legal proceedings, you may need certified copies from Tehsil offices.</p>
+        </details>
+    </div>
+</div>
+
+<div class="card" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white;">
+    <div class="card-header" style="border-bottom:1px solid rgba(255,255,255,0.2);">
+        <h2 style="color:white;">📞 Need Help? Contact Us</h2>
+    </div>
+    <div class="contact-grid">
+        <div class="contact-tile">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">📞</div>
+            <h4>Helpline Number</h4>
+            <p class="contact-value">0191-2345678</p>
+            <p class="contact-sub">Mon–Fri, 10:00 AM – 5:00 PM</p>
+        </div>
+        <div class="contact-tile">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">✉️</div>
+            <h4>Email Support</h4>
+            <p class="contact-value" style="font-size:1rem;">landrecords@jk.gov.in</p>
+            <p class="contact-sub">Response within 24 hours</p>
+        </div>
+        <div class="contact-tile">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🏢</div>
+            <h4>Office Address</h4>
+            <p class="contact-value" style="font-size:0.95rem;">Revenue Department</p>
+            <p class="contact-sub">Civil Secretariat, Jammu / Srinagar</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ── Welcome features ── */
+    .welcome-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.85rem;
+    }
+
+    .feature-tile {
+        background: rgba(255,255,255,0.15);
+        padding: 0.9rem 1rem;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.88rem;
+    }
+
+    .feature-tile p { opacity: 0.88; margin-top: 0.25rem; font-size: 0.82rem; }
+
+    /* ── Quick actions ── */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .qa-card {
+        color: white;
+        padding: 1.5rem 1.25rem;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .qa-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+
+    .qa-purple { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
+    .qa-pink   { background: linear-gradient(135deg,#f093fb 0%,#f5576c 100%); }
+    .qa-blue   { background: linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
+
+    .qa-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .qa-card h3 { margin-bottom: 0.4rem; font-size: 1rem; }
+    .qa-card p  { opacity: 0.9; font-size: 0.85rem; line-height: 1.45; }
+
+    /* ── How-to ── */
+    .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; padding: 0.5rem 0; }
+
+    .how-item { display: flex; gap: 0.85rem; align-items: flex-start; }
+
+    .how-num {
+        color: white;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    /* ── Grievance types ── */
+    .griev-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .griev-tile {
+        border: 2px solid #e9ecef;
+        padding: 1.25rem;
+        border-radius: 8px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .griev-tile:hover { border-color: #2a5298; box-shadow: 0 4px 12px rgba(42,82,152,0.1); }
+
+    .griev-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .griev-tile h4 { color: #1e3c72; margin-bottom: 0.35rem; font-size: 0.95rem; }
+    .griev-tile p  { color: #6c757d; font-size: 0.85rem; line-height: 1.45; }
+
+    /* ── FAQs ── */
+    .faq-item {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem 1.1rem;
+        transition: box-shadow 0.2s;
+    }
+
+    .faq-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+    .faq-item summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: #1e3c72;
+        font-size: 0.95rem;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .faq-item summary::after {
+        content: '+';
+        font-size: 1.3rem;
+        color: #2a5298;
+        font-weight: 400;
+        transition: transform 0.2s;
+    }
+
+    .faq-item[open] summary::after { content: '−'; }
+
+    .faq-item p { margin-top: 0.75rem; color: #6c757d; font-size: 0.9rem; line-height: 1.6; }
+
+    /* ── Contact ── */
+    .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+
+    .contact-tile {
+        background: rgba(255,255,255,0.14);
+        padding: 1.25rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .contact-tile h4   { margin-bottom: 0.4rem; font-size: 0.95rem; }
+    .contact-value     { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .contact-sub       { opacity: 0.85; font-size: 0.82rem; }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE  —  992px
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 992px) {
+        .welcome-features   { grid-template-columns: repeat(3, 1fr); }
+        .quick-actions-grid { grid-template-columns: repeat(3, 1fr); }
+        .how-grid           { grid-template-columns: 1fr; gap: 1rem; }
+        .griev-grid         { grid-template-columns: repeat(2, 1fr); }
+        .contact-grid       { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE  —  768px
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+        .welcome-features   { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+        .quick-actions-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+        .qa-card            { padding: 1.1rem 1rem; }
+        .qa-icon            { font-size: 2rem; margin-bottom: 0.5rem; }
+        .how-grid           { grid-template-columns: 1fr; }
+        .griev-grid         { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .contact-grid       { grid-template-columns: 1fr; gap: 0.75rem; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE  —  480px
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 480px) {
+        .welcome-features   { grid-template-columns: 1fr; }
+        .griev-grid         { grid-template-columns: 1fr; }
+        .qa-card p          { display: none; }   /* hide subtitle on very small screens */
+    }
+</style>
+
+    </div>
+
+    <!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+    <footer b-164lysxe6w="" class="footer">
+        <p b-164lysxe6w="">© 2026 Government of Jammu &amp; Kashmir. All rights reserved.</p>
+        <p b-164lysxe6w="">Land Records Department | Revenue Department</p>
+        <p b-164lysxe6w="">Designed &amp; Developed By: Syed Komeel</p>
+    </footer>
+
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        // ── Slide-toggle nav bar on mobile ───────────────────────────
+        function toggleNav() {
+            var nav = document.getElementById('navMenu');
+            var btn = document.getElementById('navHamburger');
+            var isOpen = nav.classList.contains('open');
+
+            if (isOpen) {
+                nav.classList.remove('open');
+                btn.classList.remove('open');
+            } else {
+                nav.classList.add('open');
+                btn.classList.add('open');
+            }
+        }
+
+        // Close nav on resize back to desktop
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 768) {
+                var nav = document.getElementById('navMenu');
+                var btn = document.getElementById('navHamburger');
+                nav.classList.remove('open');
+                btn.classList.remove('open');
+                nav.style.maxHeight = '';
+            }
+        });
+
+        // ── Highlight active nav link ────────────────────────────────
+        (function () {
+            var path  = window.location.pathname.toLowerCase();
+            var links = document.querySelectorAll('.nav-link');
+            links.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (href && path === href.toLowerCase()) {
+                    link.classList.add('active');
+                }
+            });
+        })();
+
+        // ── Disable autocomplete globally ────────────────────────────
+        $(document).ready(function () {
+            $('input, select, textarea').attr('autocomplete', 'off');
+        });
+    </script>
+
+    
+
+
+</body></html>

@@ -5,9 +5,6 @@ const { protect } = require('../middleware/auth');
 
 const ALLOWED_CATEGORIES = ['Biology', 'Medical Physics', 'Biophysics', 'General Discussion', 'Other'];
 
-// Escape special regex characters from user input to prevent ReDoS
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 // @route   GET /api/forums
 // @desc    Get all forum topics with search, category, and pagination
 // @access  Public
@@ -17,16 +14,13 @@ router.get('/', async (req, res) => {
     const query = {};
 
     if (search && search.trim()) {
-      const safe = escapeRegex(search.trim());
-      query.$or = [
-        { title: new RegExp(safe, 'i') },
-        { content: new RegExp(safe, 'i') },
-        { tags: new RegExp(safe, 'i') },
-      ];
+      // Use MongoDB full-text search index (safe - no user data in query operators)
+      query.$text = { $search: search.trim().slice(0, 200) };
     }
 
-    if (category && ALLOWED_CATEGORIES.includes(category)) {
-      query.category = category;
+    const validCategory = ALLOWED_CATEGORIES.find((c) => c === category);
+    if (validCategory) {
+      query.category = validCategory;
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);

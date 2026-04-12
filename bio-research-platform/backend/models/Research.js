@@ -64,7 +64,7 @@ const researchSchema = new mongoose.Schema({
   },
 });
 
-// Text index for search
-researchSchema.index({ title: 'text', abstract: 'text', tags: 'text' });
+// Text index for search (title, abstract, authors, tags)
+researchSchema.index({ title: 'text', abstract: 'text', authors: 'text', tags: 'text' });
 
 module.exports = mongoose.model('Research', researchSchema);
